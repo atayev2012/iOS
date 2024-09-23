@@ -7,12 +7,27 @@
 
 import UIKit
 
+struct UserInfo {
+    var firstName: String = "Rick"
+    var lastName: String = "Sanchez"
+    var dateOfBirth: String = "15.01.1943"
+    var age: Int = 81
+    var sex: String = "Male"
+    var cell: String = "+7 (999) 999 99 99"
+    var email: String = "rick.sanchez@hse.ru"
+}
+
+
 let buttonColor = UIColor(red: 27/255, green: 145/255, blue: 1.0, alpha: 1.0)
 let bckgrndColor = UIColor(red: 235/255, green: 248/255, blue: 1.0, alpha: 1.0)
 let headerColor = UIColor(red: 0, green: 20/255, blue: 74/255, alpha: 1.0)
 let labelTagColor = UIColor(red: 131/255, green: 150/255, blue: 168/255, alpha: 1.0)
 
+
+
 class MainViewController: UIViewController{
+    
+    var userData = UserInfo()
     
     private var headerView: UIView = {
         let headView = UIView()
@@ -28,7 +43,7 @@ class MainViewController: UIViewController{
     }()
     
     
-    private var editButton: UIButton = {
+    private lazy var editButton: UIButton = {
         let button = UIButton()
         
         button.setTitle(" Edit Profile", for: .normal)
@@ -41,22 +56,28 @@ class MainViewController: UIViewController{
         button.backgroundColor = buttonColor
         
         button.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addAction(
+                    .init{ [weak self] _ in
+                        self?.editProfile()
+                    } , for: .touchUpInside)
+        
         return button
     }()
     
     
-    private var nameLabel: UILabel = {
+    private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Batyr Atayev" // name from user data
+        label.text = "\(userData.firstName) \(userData.lastName)" // name from user data
         label.font = .systemFont(ofSize: 26, weight: .bold)
         label.textColor = headerColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private var ageLabel: UILabel = {
+    private lazy var ageLabel: UILabel = {
         let label  = UILabel()
-        label.text = "30 years old" // age from user data
+        label.text = "\(userData.age) years old" // age from user data
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = labelTagColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -130,27 +151,27 @@ class MainViewController: UIViewController{
     }()
     
     
-    private var sexLabel: UILabel = {
+    private lazy var sexLabel: UILabel = {
         let label  = UILabel()
-        label.text = "Male" // sex from user data
+        label.text = "\(userData.sex)" // sex from user data
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = headerColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private var cellLabel: UILabel = {
+    private lazy var cellLabel: UILabel = {
         let label  = UILabel()
-        label.text = "+7 (999) 999 99 99" // cell from user data
+        label.text = "\(userData.cell)" // cell from user data
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = headerColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    private var emailLabel: UILabel = {
+    private lazy var emailLabel: UILabel = {
         let label  = UILabel()
-        label.text = "atayev2012@gmail.com" // email from user data
+        label.text = "\(userData.email)" // email from user data
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = headerColor
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -261,7 +282,80 @@ class MainViewController: UIViewController{
             
         ])
         
+    }
+    
+    private func editProfile() {
+        let controller = EditViewController()
+        controller.delegate = self
         
+        navigationController?.pushViewController(controller, animated: true)
         
     }
+        
+}
+
+extension MainViewController: EditViewControllerDelegate {
+    func getUserInfo() -> UserInfo {
+        return self.userData
+    }
+    
+    func dateToStr(dateValue: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        return dateFormatter.string(from: dateValue)
+    }
+    
+    func strToDate(dateValue: String) -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        return dateFormatter.date(from: dateValue)!
+    }
+    
+    func calculateAge(dateOfBirth: Date) -> Int {
+        let now = Date()
+        let calendar = Calendar.current
+
+        let ageComponents = calendar.dateComponents([.year], from: dateOfBirth, to: now)
+        return ageComponents.year!
+    }
+    
+    func saveUserInfo(
+        firstName: String?,
+        lastName: String?,
+        dateOfBirth: String?,
+        age: Int?,
+        sex: String?,
+        cell: String?,
+        email: String?
+    ) {
+        if let firstName = firstName {
+            self.userData.firstName = firstName
+        }
+        if let lastName = lastName {
+            self.userData.lastName = lastName
+        }
+        if let dateOfBirth = dateOfBirth {
+            self.userData.dateOfBirth = dateOfBirth
+        }
+        if let age = age {
+            self.userData.age = age
+        }
+        if let sex = sex {
+            self.userData.sex = sex
+        }
+        if let cell = cell {
+            self.userData.cell = cell
+        }
+        if let email = email {
+            self.userData.email = email
+        }
+        
+        nameLabel.text = "\(userData.firstName) \(userData.lastName)"
+        ageLabel.text = "\(userData.age) years old"
+        sexLabel.text = "\(userData.sex)"
+        cellLabel.text = "\(userData.cell)"
+        emailLabel.text = "\(userData.email)"
+        
+        
+        }
 }
